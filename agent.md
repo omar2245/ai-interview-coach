@@ -53,6 +53,9 @@ Unless we decide otherwise later, prefer:
 
 - Vue 3 for the frontend web app
 - TypeScript for safer frontend code
+- Tailwind CSS for styling
+- shadcn-vue for reusable UI components
+- @lucide/vue for icons
 - FastAPI for the backend API
 - a single backend endpoint for MVP analysis
 - simple local state for the first UI

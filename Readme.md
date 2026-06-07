@@ -216,6 +216,9 @@ language: string default zh-TW
 
 - Vue 3：建立前端單頁應用
 - TypeScript：讓前端資料結構更安全
+- Tailwind CSS：負責版面、間距、RWD 與整體樣式
+- shadcn-vue：提供可客製化的 UI 元件基礎
+- @lucide/vue：提供乾淨一致的 icon
 - FastAPI：建立後端 API
 - OpenAI API：產生履歷與職缺分析
 - 不使用資料庫：第一版不保存資料
@@ -257,6 +260,7 @@ language: string default zh-TW
 - 決定使用 Vue 3 + FastAPI
 - 初始化 Vue 3 前端專案
 - 初始化 FastAPI 後端專案
+- 初始化 Tailwind CSS + shadcn-vue UI 基礎
 - 建立根目錄 `.gitignore`
 
 尚未開始：
