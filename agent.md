@@ -10,6 +10,7 @@ This file records how we will work on this project together.
   - what changed
   - why it changed
   - how to test it
+- For coding changes, do not push to GitHub until the user has reviewed and approved the changes.
 - Avoid adding advanced features before the MVP works.
 - Keep the project beginner-friendly.
 
