@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.routes.analysis import router as analysis_router
+
 app = FastAPI(
     title="JobFit Analyzer API",
     description="Backend API for resume and job description matching analysis.",
@@ -17,6 +19,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(analysis_router)
 
 
 @app.get("/health")
