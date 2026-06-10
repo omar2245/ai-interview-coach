@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import {
   AlertCircle,
-  ArrowRight,
-  BriefcaseBusiness,
   CheckCircle2,
   ClipboardList,
   Lightbulb,
@@ -12,19 +10,11 @@ import {
 import { computed, ref } from "vue";
 
 import { analyzeJobFit } from "@/api/analysis";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import AnalyzeActionBar from "@/components/AnalyzeActionBar.vue";
 import AnalysisResultCard from "@/components/AnalysisResultCard.vue";
+import JobDescriptionCard from "@/components/JobDescriptionCard.vue";
 import ResumeInputCard from "@/components/ResumeInputCard.vue";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import { previewAnalysis } from "@/data/previewAnalysis";
 import type { AnalysisSection, AnalyzeResponse } from "@/types/analysis";
 
@@ -127,68 +117,17 @@ async function handleAnalyzeJobFit() {
             @file-change="handleFileChange"
           />
 
-          <Card
-            class="rounded-lg border-app-border bg-app-panel text-app-text shadow-app"
-          >
-            <CardHeader class="space-y-2">
-              <div
-                class="flex items-center gap-2 text-sm font-medium text-brand"
-              >
-                <BriefcaseBusiness class="size-4" aria-hidden="true" />
-                <span>職缺</span>
-              </div>
-              <CardTitle
-                class="text-xl font-semibold tracking-normal text-app-text"
-              >
-                職缺描述
-              </CardTitle>
-              <CardDescription class="text-app-muted">
-                貼上工作內容、必要條件、加分項與公司說明。
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent>
-              <Textarea
-                id="job-description"
-                v-model="jobDescription"
-                class="min-h-72 resize-none border-app-border bg-app-field text-base leading-6 text-app-text placeholder:text-app-subtle focus-visible:ring-brand"
-                placeholder="貼上工作內容、必要條件、加分項與公司說明..."
-              />
-            </CardContent>
-          </Card>
+          <JobDescriptionCard
+            :job-description="jobDescription"
+            @update:job-description="jobDescription = $event"
+          />
         </div>
 
-        <div class="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
-          <Alert
-            class="border-warning-border bg-warning-surface text-warning-text"
-          >
-            <AlertCircle class="size-4" aria-hidden="true" />
-            <AlertTitle class="font-semibold"> 已接上 FastAPI 假資料 </AlertTitle>
-            <AlertDescription class="text-warning-text/80">
-              目前後端會先回傳固定分析結果，之後再替換成 AI 產生內容。
-            </AlertDescription>
-          </Alert>
-
-          <Alert
-            v-if="errorMessage"
-            class="border-destructive/40 bg-destructive/10 text-destructive"
-          >
-            <AlertCircle class="size-4" aria-hidden="true" />
-            <AlertTitle class="font-semibold"> 分析失敗 </AlertTitle>
-            <AlertDescription>
-              {{ errorMessage }}
-            </AlertDescription>
-          </Alert>
-
-          <Button
-            class="h-11 cursor-pointer bg-cta-gradient px-8 text-base font-bold text-white shadow-cta hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
-            :disabled="isAnalyzing"
-            @click="handleAnalyzeJobFit"
-          >
-            {{ isAnalyzing ? "分析中..." : "開始分析" }}
-            <ArrowRight class="ml-2 size-4" aria-hidden="true" />
-          </Button>
-        </div>
+        <AnalyzeActionBar
+          :is-analyzing="isAnalyzing"
+          :error-message="errorMessage"
+          @analyze="handleAnalyzeJobFit"
+        />
 
         <AnalysisResultCard
           :analysis="displayAnalysis"
