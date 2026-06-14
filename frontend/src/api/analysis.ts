@@ -7,6 +7,10 @@ type AnalyzeJobFitParams = {
   language?: string;
 };
 
+const apiBaseUrl =
+  import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ??
+  "http://127.0.0.1:8000";
+
 export async function analyzeJobFit({
   jobDescription,
   resumeText,
@@ -26,7 +30,7 @@ export async function analyzeJobFit({
     formData.append("resume_file", resumeFile);
   }
 
-  const response = await fetch("http://127.0.0.1:8000/api/analyze", {
+  const response = await fetch(`${apiBaseUrl}/api/analyze`, {
     method: "POST",
     body: formData,
   });
