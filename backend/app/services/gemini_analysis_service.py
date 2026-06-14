@@ -45,6 +45,15 @@ def parse_analysis_response(analysis_text: str) -> AnalyzeResponse:
     return AnalyzeResponse.model_validate(analysis_data)
 
 
+def is_gemini_quota_error(error: OpenAIError) -> bool:
+    error_text = str(error)
+    return (
+        "429" in error_text
+        or "RESOURCE_EXHAUSTED" in error_text
+        or "Quota exceeded" in error_text
+    )
+
+
 def call_gemini_chat(client: OpenAI, messages: list[dict[str, str]]) -> str:
     for attempt in range(2):
         try:
@@ -65,6 +74,12 @@ def call_gemini_chat(client: OpenAI, messages: list[dict[str, str]]) -> str:
             if attempt == 0 and "503" in str(exc):
                 time.sleep(2)
                 continue
+
+            if is_gemini_quota_error(error=exc):
+                raise HTTPException(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail="Gemini 免費額度或請求次數暫時用完，請稍後再試。",
+                ) from exc
 
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
