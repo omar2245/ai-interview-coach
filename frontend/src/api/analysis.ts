@@ -2,25 +2,33 @@ import type { AnalyzeResponse } from "@/types/analysis";
 
 type AnalyzeJobFitParams = {
   jobDescription: string;
-  resumeText: string;
+  resumeText?: string;
+  resumeFile?: File | null;
   language?: string;
 };
 
 export async function analyzeJobFit({
   jobDescription,
   resumeText,
+  resumeFile,
   language = "zh-TW",
 }: AnalyzeJobFitParams): Promise<AnalyzeResponse> {
+  const formData = new FormData();
+
+  formData.append("job_description", jobDescription);
+  formData.append("language", language);
+
+  if (resumeText) {
+    formData.append("resume_text", resumeText);
+  }
+
+  if (resumeFile) {
+    formData.append("resume_file", resumeFile);
+  }
+
   const response = await fetch("http://127.0.0.1:8000/api/analyze", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      job_description: jobDescription,
-      resume_text: resumeText,
-      language,
-    }),
+    body: formData,
   });
 
   const data = await response.json();

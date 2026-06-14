@@ -23,6 +23,7 @@ const resumeInputMode = ref<"file" | "text">("file");
 const jobDescription = ref("");
 const resumeText = ref("");
 const selectedFileName = ref("");
+const selectedResumeFile = ref<File | null>(null);
 const isAnalyzing = ref(false);
 const analysisResult = ref<AnalyzeResponse | null>(null);
 const errorMessage = ref("");
@@ -58,7 +59,10 @@ const displaySections = computed<AnalysisSection[]>(() => [
 
 function handleFileChange(event: Event) {
   const input = event.target as HTMLInputElement;
-  selectedFileName.value = input.files?.[0]?.name ?? "";
+  const file = input.files?.[0] ?? null;
+
+  selectedResumeFile.value = file;
+  selectedFileName.value = file?.name ?? "";
 }
 
 async function handleAnalyzeJobFit() {
@@ -69,7 +73,8 @@ async function handleAnalyzeJobFit() {
   try {
     analysisResult.value = await analyzeJobFit({
       jobDescription: jobDescription.value,
-      resumeText: resumeText.value || "這是暫時的履歷文字",
+      resumeText: resumeText.value,
+      resumeFile: selectedResumeFile.value,
     });
   } catch (error) {
     errorMessage.value =
