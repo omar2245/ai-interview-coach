@@ -15,7 +15,6 @@ import AnalysisResultCard from "@/components/AnalysisResultCard.vue";
 import JobDescriptionCard from "@/components/JobDescriptionCard.vue";
 import ResumeInputCard from "@/components/ResumeInputCard.vue";
 import { Badge } from "@/components/ui/badge";
-import { previewAnalysis } from "@/data/previewAnalysis";
 import type { AnalysisSection, AnalyzeResponse } from "@/types/analysis";
 
 const appVersion = "v0.1.0";
@@ -28,32 +27,31 @@ const isAnalyzing = ref(false);
 const analysisResult = ref<AnalyzeResponse | null>(null);
 const errorMessage = ref("");
 
-const displayAnalysis = computed(() => analysisResult.value ?? previewAnalysis);
 const displaySections = computed<AnalysisSection[]>(() => [
   {
     title: "履歷強項",
     icon: CheckCircle2,
-    items: displayAnalysis.value.strengths,
+    items: analysisResult.value?.strengths ?? [],
   },
   {
     title: "命中需求",
     icon: Target,
-    items: displayAnalysis.value.matched_requirements,
+    items: analysisResult.value?.matched_requirements ?? [],
   },
   {
     title: "可能缺口",
     icon: AlertCircle,
-    items: displayAnalysis.value.gaps,
+    items: analysisResult.value?.gaps ?? [],
   },
   {
     title: "建議補強",
     icon: Lightbulb,
-    items: displayAnalysis.value.recommendations,
+    items: analysisResult.value?.recommendations ?? [],
   },
   {
     title: "面試準備重點",
     icon: ClipboardList,
-    items: displayAnalysis.value.interview_focus,
+    items: analysisResult.value?.interview_focus ?? [],
   },
 ]);
 
@@ -65,16 +63,54 @@ function handleFileChange(event: Event) {
   selectedFileName.value = file?.name ?? "";
 }
 
-async function handleAnalyzeJobFit() {
-  isAnalyzing.value = true;
+function handleResumeInputModeChange(value: "file" | "text") {
+  resumeInputMode.value = value;
   errorMessage.value = "";
+
+  if (value === "file") {
+    resumeText.value = "";
+    return;
+  }
+
+  selectedResumeFile.value = null;
+  selectedFileName.value = "";
+}
+
+function validateAnalysisInput() {
+  if (!jobDescription.value.trim()) {
+    errorMessage.value = "請先貼上職缺描述。";
+    return false;
+  }
+
+  if (resumeInputMode.value === "file" && !selectedResumeFile.value) {
+    errorMessage.value = "請先選擇履歷檔案，或切換成貼上履歷文字。";
+    return false;
+  }
+
+  if (resumeInputMode.value === "text" && !resumeText.value.trim()) {
+    errorMessage.value = "請先貼上履歷文字，或切換成上傳履歷檔案。";
+    return false;
+  }
+
+  return true;
+}
+
+async function handleAnalyzeJobFit() {
+  errorMessage.value = "";
+
+  if (!validateAnalysisInput()) {
+    return;
+  }
+
+  isAnalyzing.value = true;
   analysisResult.value = null;
 
   try {
     analysisResult.value = await analyzeJobFit({
       jobDescription: jobDescription.value,
-      resumeText: resumeText.value,
-      resumeFile: selectedResumeFile.value,
+      resumeText: resumeInputMode.value === "text" ? resumeText.value : "",
+      resumeFile:
+        resumeInputMode.value === "file" ? selectedResumeFile.value : null,
     });
   } catch (error) {
     errorMessage.value =
@@ -117,7 +153,7 @@ async function handleAnalyzeJobFit() {
             :resume-input-mode="resumeInputMode"
             :resume-text="resumeText"
             :selected-file-name="selectedFileName"
-            @update:resume-input-mode="resumeInputMode = $event"
+            @update:resume-input-mode="handleResumeInputModeChange"
             @update:resume-text="resumeText = $event"
             @file-change="handleFileChange"
           />
@@ -135,7 +171,7 @@ async function handleAnalyzeJobFit() {
         />
 
         <AnalysisResultCard
-          :analysis="displayAnalysis"
+          :analysis="analysisResult"
           :sections="displaySections"
           :has-result="Boolean(analysisResult)"
         />

@@ -16,14 +16,6 @@ const emit = defineEmits<{
 
 <template>
   <div class="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
-    <Alert class="border-warning-border bg-warning-surface text-warning-text">
-      <AlertCircle class="size-4" aria-hidden="true" />
-      <AlertTitle class="font-semibold"> 已接上 FastAPI 假資料 </AlertTitle>
-      <AlertDescription class="text-warning-text/80">
-        目前後端會先回傳固定分析結果，之後再替換成 AI 產生內容。
-      </AlertDescription>
-    </Alert>
-
     <Alert
       v-if="errorMessage"
       class="border-destructive/40 bg-destructive/10 text-destructive"

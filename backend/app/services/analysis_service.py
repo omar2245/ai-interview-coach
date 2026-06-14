@@ -1,6 +1,10 @@
 from fastapi import HTTPException, status
 
+from app.core.config import settings
 from app.schemas.analysis import AnalyzeRequest, AnalyzeResponse
+from app.services.ai_analysis_service import generate_ai_analysis
+from app.services.fake_analysis_service import generate_fake_analysis
+from app.services.gemini_analysis_service import generate_gemini_analysis
 
 
 def analyze_resume(request: AnalyzeRequest) -> AnalyzeResponse:
@@ -16,27 +20,16 @@ def analyze_resume(request: AnalyzeRequest) -> AnalyzeResponse:
             detail="履歷內容不可為空",
         )
 
-    return AnalyzeResponse(
-        match_score=78,
-        summary="這是一筆假資料分析結果，之後會改成 AI 產生的內容。",
-        strengths=[
-            "履歷中有清楚的專案經驗描述",
-            "具備與職缺相關的技能基礎",
-        ],
-        matched_requirements=[
-            "符合職缺中提到的基礎技能需求",
-            "具備團隊協作與產品開發經驗",
-        ],
-        gaps=[
-            "目前尚未看到明確的部署或 CI/CD 經驗",
-            "部分專案成果可以再補上量化指標",
-        ],
-        recommendations=[
-            "補充專案成果，例如效能提升、使用者成長或交付時程",
-            "把技能經驗對應到職缺需求，讓履歷更容易被理解",
-        ],
-        interview_focus=[
-            "準備說明代表性專案的技術選擇",
-            "準備回答遇到問題時如何排查與溝通",
-        ],
+    if settings.analysis_provider == "fake":
+        return generate_fake_analysis(request=request)
+
+    if settings.analysis_provider == "openai":
+        return generate_ai_analysis(request=request)
+
+    if settings.analysis_provider == "gemini":
+        return generate_gemini_analysis(request=request)
+
+    raise HTTPException(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        detail="分析服務設定錯誤",
     )

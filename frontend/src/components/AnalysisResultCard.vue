@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ClipboardList, FileText } from "@lucide/vue";
+import { ClipboardList, FileText, Sparkles } from "@lucide/vue";
 
 import {
   Card,
@@ -12,7 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import type { AnalysisSection, AnalyzeResponse } from "@/types/analysis";
 
 defineProps<{
-  analysis: AnalyzeResponse;
+  analysis: AnalyzeResponse | null;
   sections: AnalysisSection[];
   hasResult: boolean;
 }>();
@@ -23,18 +23,25 @@ defineProps<{
     <CardHeader class="space-y-2">
       <div class="flex items-center gap-2 text-sm font-medium text-brand">
         <ClipboardList class="size-4" aria-hidden="true" />
-        <span>分析結果預覽</span>
+        <span>分析結果</span>
       </div>
       <div class="flex items-start justify-between gap-4">
         <div>
           <CardTitle class="text-xl font-semibold tracking-normal text-app-text">
-            匹配摘要
+            {{ hasResult ? "匹配摘要" : "等待分析結果" }}
           </CardTitle>
           <CardDescription class="mt-1 text-app-muted">
-            {{ hasResult ? "來自 FastAPI 的分析結果。" : "目前顯示預覽結果，送出後會更新。" }}
+            {{
+              hasResult
+                ? "AI 已根據履歷與職缺產生分析。"
+                : "填寫履歷與職缺後開始分析，結果會顯示在這裡。"
+            }}
           </CardDescription>
         </div>
-        <div class="rounded-lg border border-brand-border bg-brand-soft px-4 py-3 text-right">
+        <div
+          v-if="analysis"
+          class="rounded-lg border border-brand-border bg-brand-soft px-4 py-3 text-right"
+        >
           <p class="text-xs font-medium text-brand">匹配分數</p>
           <p class="text-3xl font-semibold text-app-text">
             {{ analysis.match_score }}
@@ -43,7 +50,7 @@ defineProps<{
       </div>
     </CardHeader>
 
-    <CardContent class="space-y-5">
+    <CardContent v-if="analysis" class="space-y-5">
       <div>
         <Progress :model-value="analysis.match_score" class="h-2 bg-app-panel-soft" />
         <div class="mt-2 flex justify-between text-xs text-app-muted">
@@ -85,6 +92,22 @@ defineProps<{
             </li>
           </ul>
         </section>
+      </div>
+    </CardContent>
+
+    <CardContent v-else>
+      <div
+        class="flex min-h-80 flex-col items-center justify-center rounded-lg border border-dashed border-app-border bg-app-panel-soft px-6 py-10 text-center"
+      >
+        <div
+          class="mb-4 flex size-12 items-center justify-center rounded-full bg-brand-soft text-brand"
+        >
+          <Sparkles class="size-5" aria-hidden="true" />
+        </div>
+        <p class="text-base font-semibold text-app-text">尚未產生分析</p>
+        <p class="mt-2 max-w-md text-sm leading-6 text-app-muted">
+          選擇履歷輸入方式並貼上職缺描述後，點擊開始分析即可取得 AI 匹配摘要。
+        </p>
       </div>
     </CardContent>
   </Card>
