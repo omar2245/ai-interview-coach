@@ -20,6 +20,21 @@ def analyze_resume(request: AnalyzeRequest) -> AnalyzeResponse:
             detail="履歷內容不可為空",
         )
 
+    if len(request.resume_text) > settings.max_resume_chars:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"履歷內容過長，最多允許 {settings.max_resume_chars} 個字元。",
+        )
+
+    if len(request.job_description) > settings.max_job_description_chars:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=(
+                "職缺說明過長，最多允許 "
+                f"{settings.max_job_description_chars} 個字元。"
+            ),
+        )
+
     if settings.analysis_provider == "fake":
         return generate_fake_analysis(request=request)
 

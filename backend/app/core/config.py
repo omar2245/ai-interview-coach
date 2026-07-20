@@ -19,6 +19,20 @@ class Settings:
     openai_model: str = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
     gemini_api_key: str | None = os.getenv("GEMINI_API_KEY")
     gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+    gemini_timeout_seconds: float = float(
+        os.getenv("GEMINI_TIMEOUT_SECONDS", "45")
+    )
+    gemini_max_retries: int = int(os.getenv("GEMINI_MAX_RETRIES", "2"))
+    gemini_max_output_tokens: int = int(
+        os.getenv("GEMINI_MAX_OUTPUT_TOKENS", "1200")
+    )
+    gemini_reasoning_effort: str = os.getenv(
+        "GEMINI_REASONING_EFFORT", "low"
+    )
+    max_resume_chars: int = int(os.getenv("MAX_RESUME_CHARS", "20000"))
+    max_job_description_chars: int = int(
+        os.getenv("MAX_JOB_DESCRIPTION_CHARS", "12000")
+    )
 
 
 settings = Settings()
