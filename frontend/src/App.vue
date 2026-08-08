@@ -3,18 +3,21 @@ import {
   AlertCircle,
   CheckCircle2,
   ClipboardList,
+  History,
   Lightbulb,
   Sparkles,
   Target,
 } from "@lucide/vue";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 import { analyzeJobFit } from "@/api/analysis";
+import { getCapabilities } from "@/api/capabilities";
 import AnalyzeActionBar from "@/components/AnalyzeActionBar.vue";
 import AnalysisResultCard from "@/components/AnalysisResultCard.vue";
 import JobDescriptionCard from "@/components/JobDescriptionCard.vue";
 import ResumeInputCard from "@/components/ResumeInputCard.vue";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { AnalysisSection, AnalyzeResponse } from "@/types/analysis";
 
 const appVersion = "v0.1.0";
@@ -26,6 +29,17 @@ const selectedResumeFile = ref<File | null>(null);
 const isAnalyzing = ref(false);
 const analysisResult = ref<AnalyzeResponse | null>(null);
 const errorMessage = ref("");
+const historyEnabled = ref(false);
+const activeView = ref<"analysis" | "history">("analysis");
+
+onMounted(async () => {
+  try {
+    const capabilities = await getCapabilities();
+    historyEnabled.value = capabilities.history_enabled;
+  } catch {
+    historyEnabled.value = false;
+  }
+});
 
 const displaySections = computed<AnalysisSection[]>(() => [
   {
@@ -147,7 +161,30 @@ async function handleAnalyzeJobFit() {
         </div>
       </header>
 
-      <section class="space-y-5">
+      <nav
+        v-if="historyEnabled"
+        class="mb-5 flex w-fit gap-1 rounded-lg border border-app-border bg-app-panel p-1"
+        aria-label="Application views"
+      >
+        <Button
+          size="sm"
+          :variant="activeView === 'analysis' ? 'default' : 'ghost'"
+          @click="activeView = 'analysis'"
+        >
+          <Sparkles class="size-4" aria-hidden="true" />
+          Analysis
+        </Button>
+        <Button
+          size="sm"
+          :variant="activeView === 'history' ? 'default' : 'ghost'"
+          @click="activeView = 'history'"
+        >
+          <History class="size-4" aria-hidden="true" />
+          History
+        </Button>
+      </nav>
+
+      <section v-if="activeView === 'analysis'" class="space-y-5">
         <div class="grid gap-5 lg:grid-cols-2">
           <ResumeInputCard
             :resume-input-mode="resumeInputMode"
@@ -175,6 +212,17 @@ async function handleAnalyzeJobFit() {
           :sections="displaySections"
           :has-result="Boolean(analysisResult)"
         />
+      </section>
+
+      <section
+        v-else
+        class="flex min-h-80 flex-col items-center justify-center rounded-xl border border-app-border bg-app-panel px-6 py-12 text-center"
+      >
+        <History class="mb-4 size-10 text-brand" aria-hidden="true" />
+        <h2 class="text-xl font-semibold text-app-text">Analysis history</h2>
+        <p class="mt-2 max-w-md text-sm leading-6 text-app-muted">
+          Saved analyses will appear here after local history storage is added.
+        </p>
       </section>
 
       <footer
