@@ -7,6 +7,12 @@ load_dotenv()
 
 class Settings:
     analysis_provider: str = os.getenv("ANALYSIS_PROVIDER", "fake")
+    history_enabled: bool = os.getenv("HISTORY_ENABLED", "false").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
     allowed_origins: list[str] = [
         origin.strip()
         for origin in os.getenv(

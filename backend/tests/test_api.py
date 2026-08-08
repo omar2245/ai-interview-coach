@@ -7,7 +7,7 @@ from reportlab.pdfgen import canvas
 
 os.environ["ANALYSIS_PROVIDER"] = "fake"
 
-from app.main import app
+from app.main import app, create_app
 
 
 client = TestClient(app)
@@ -18,6 +18,28 @@ def test_health_check_reports_service_is_available() -> None:
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+def test_capabilities_report_history_is_disabled_by_default() -> None:
+    response = client.get("/api/capabilities")
+
+    assert response.status_code == 200
+    assert response.json() == {"history_enabled": False}
+
+
+def test_disabled_app_does_not_expose_history_routes() -> None:
+    response = client.get("/api/history")
+
+    assert response.status_code == 404
+
+
+def test_capabilities_report_history_is_enabled_for_enabled_app() -> None:
+    enabled_client = TestClient(create_app(history_enabled=True))
+
+    response = enabled_client.get("/api/capabilities")
+
+    assert response.status_code == 200
+    assert response.json() == {"history_enabled": True}
 
 
 def test_analyze_returns_structured_job_fit_result() -> None:

@@ -36,13 +36,18 @@ Build now:
 - structured result display
 - basic validation and error states
 
+Build in v0.2:
+
+- local single-user analysis history
+- runtime capability gate that is disabled by default
+- SQLite persistence managed through explicit migrations
+- history list, detail, deletion, and reuse flows
+
 Do not build yet:
 
 - login
-- database
 - payment
 - user accounts
-- saved history
 - mock interview chat
 - voice features
 - WebSocket

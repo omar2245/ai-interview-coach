@@ -34,6 +34,16 @@ Health check:
 GET http://localhost:8000/health
 ```
 
+Runtime capabilities:
+
+```http
+GET http://localhost:8000/api/capabilities
+```
+
+Analysis history is disabled by default. Set `HISTORY_ENABLED=true` only for
+local development. Public deployments should leave it disabled until history
+has an authentication and ownership model.
+
 ## Tests
 
 Run the backend API tests:
