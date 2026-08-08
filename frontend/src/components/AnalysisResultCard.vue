@@ -51,6 +51,20 @@ defineProps<{
     </CardHeader>
 
     <CardContent v-if="analysis" class="space-y-5">
+      <p
+        class="rounded-lg border border-app-border bg-app-panel-soft px-4 py-3 text-sm text-app-muted"
+        aria-live="polite"
+      >
+        <template v-if="analysis.history_status === 'saved'">
+          已儲存至本機分析紀錄（#{{ analysis.history_id }}）
+        </template>
+        <template v-else-if="analysis.history_status === 'failed'">
+          分析完成，但無法儲存至本機紀錄。
+        </template>
+        <template v-else>
+          分析完成；本機分析紀錄功能未啟用。
+        </template>
+      </p>
       <div>
         <Progress :model-value="analysis.match_score" class="h-2 bg-app-panel-soft" />
         <div class="mt-2 flex justify-between text-xs text-app-muted">

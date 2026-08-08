@@ -8,14 +8,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 defineProps<{
   jobDescription: string;
+  jobTitle: string;
+  companyName: string;
 }>();
 
 const emit = defineEmits<{
   "update:jobDescription": [value: string];
+  "update:jobTitle": [value: string];
+  "update:companyName": [value: string];
 }>();
 </script>
 
@@ -34,7 +40,28 @@ const emit = defineEmits<{
       </CardDescription>
     </CardHeader>
 
-    <CardContent>
+    <CardContent class="space-y-4">
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="space-y-2">
+          <Label for="job-title">職稱（選填）</Label>
+          <Input
+            id="job-title"
+            :model-value="jobTitle"
+            placeholder="例如：Frontend Engineer"
+            @update:model-value="emit('update:jobTitle', String($event))"
+          />
+        </div>
+        <div class="space-y-2">
+          <Label for="company-name">公司（選填）</Label>
+          <Input
+            id="company-name"
+            :model-value="companyName"
+            placeholder="例如：Example Corp"
+            @update:model-value="emit('update:companyName', String($event))"
+          />
+        </div>
+      </div>
+      <Label for="job-description">職缺描述</Label>
       <Textarea
         id="job-description"
         :model-value="jobDescription"

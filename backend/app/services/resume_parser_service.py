@@ -69,11 +69,7 @@ def parse_pdf_resume(file_bytes: bytes) -> str:
 def parse_docx_resume(file_bytes: bytes) -> str:
     try:
         document = Document(BytesIO(file_bytes))
-        paragraph_texts = [
-            paragraph.text.strip()
-            for paragraph in document.paragraphs
-            if paragraph.text.strip()
-        ]
+        paragraph_texts = [paragraph.text for paragraph in document.paragraphs]
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

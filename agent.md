@@ -68,6 +68,21 @@ Unless we decide otherwise later, prefer:
 - no database in version 1
 - no permanent file storage in version 1
 
+## v0.2 Persistence Architecture
+
+- Local analysis history is disabled by default and is intended for a single
+  local user until authentication and ownership exist.
+- SQLite stores parsed resume text, job-description text, source metadata, and
+  complete structured analysis results; uploaded PDF/DOCX binaries are never
+  persisted.
+- SQLAlchemy 2.0 maps the aggregate, while Alembic migrations are the only
+  mechanism that creates or evolves its schema.
+- An enabled application validates the Alembic revision during startup and
+  fails with an actionable migration command when the database is not ready.
+- A persistence failure does not discard an already completed AI analysis; the
+  response reports `saved`, `disabled`, or `failed` together with a nullable
+  history ID.
+
 ## API Contract
 
 The MVP API should expose:

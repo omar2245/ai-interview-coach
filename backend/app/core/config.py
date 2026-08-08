@@ -13,6 +13,9 @@ class Settings:
         "yes",
         "on",
     }
+    database_url: str = os.getenv(
+        "DATABASE_URL", "sqlite:///./data/analysis-history.db"
+    )
     allowed_origins: list[str] = [
         origin.strip()
         for origin in os.getenv(

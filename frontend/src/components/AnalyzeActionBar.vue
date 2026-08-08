@@ -28,6 +28,7 @@ const emit = defineEmits<{
     </Alert>
 
     <Button
+      aria-label="Analyze job fit"
       class="h-11 cursor-pointer bg-cta-gradient px-8 text-base font-bold text-white shadow-cta hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
       :disabled="isAnalyzing"
       @click="emit('analyze')"

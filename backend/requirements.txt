@@ -7,3 +7,5 @@ python-docx==1.2.0
 black==25.1.0
 python-dotenv==1.2.2
 openai==2.41.1
+SQLAlchemy==2.0.46
+alembic==1.18.4

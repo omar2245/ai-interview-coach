@@ -2,6 +2,8 @@ import type { AnalyzeResponse } from "@/types/analysis";
 
 type AnalyzeJobFitParams = {
   jobDescription: string;
+  jobTitle?: string;
+  companyName?: string;
   resumeText?: string;
   resumeFile?: File | null;
   language?: string;
@@ -13,6 +15,8 @@ const apiBaseUrl =
 
 export async function analyzeJobFit({
   jobDescription,
+  jobTitle,
+  companyName,
   resumeText,
   resumeFile,
   language = "zh-TW",
@@ -21,6 +25,14 @@ export async function analyzeJobFit({
 
   formData.append("job_description", jobDescription);
   formData.append("language", language);
+
+  if (jobTitle) {
+    formData.append("job_title", jobTitle);
+  }
+
+  if (companyName) {
+    formData.append("company_name", companyName);
+  }
 
   if (resumeText) {
     formData.append("resume_text", resumeText);

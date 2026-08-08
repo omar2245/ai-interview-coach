@@ -8,6 +8,8 @@ export type AnalyzeResponse = {
   gaps: string[];
   recommendations: string[];
   interview_focus: string[];
+  history_id: number | null;
+  history_status: "saved" | "disabled" | "failed";
 };
 
 export type AnalysisSection = {

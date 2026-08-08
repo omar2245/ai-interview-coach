@@ -23,6 +23,8 @@ import type { AnalysisSection, AnalyzeResponse } from "@/types/analysis";
 const appVersion = "v0.1.0";
 const resumeInputMode = ref<"file" | "text">("file");
 const jobDescription = ref("");
+const jobTitle = ref("");
+const companyName = ref("");
 const resumeText = ref("");
 const selectedFileName = ref("");
 const selectedResumeFile = ref<File | null>(null);
@@ -122,6 +124,8 @@ async function handleAnalyzeJobFit() {
   try {
     analysisResult.value = await analyzeJobFit({
       jobDescription: jobDescription.value,
+      jobTitle: jobTitle.value,
+      companyName: companyName.value,
       resumeText: resumeInputMode.value === "text" ? resumeText.value : "",
       resumeFile:
         resumeInputMode.value === "file" ? selectedResumeFile.value : null,
@@ -197,7 +201,11 @@ async function handleAnalyzeJobFit() {
 
           <JobDescriptionCard
             :job-description="jobDescription"
+            :job-title="jobTitle"
+            :company-name="companyName"
             @update:job-description="jobDescription = $event"
+            @update:job-title="jobTitle = $event"
+            @update:company-name="companyName = $event"
           />
         </div>
 
