@@ -16,6 +16,12 @@ Install dependencies:
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
+For development, install the test dependencies instead:
+
+```powershell
+.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+```
+
 Run the API server:
 
 ```powershell
@@ -27,3 +33,14 @@ Health check:
 ```http
 GET http://localhost:8000/health
 ```
+
+## Tests
+
+Run the backend API tests:
+
+```powershell
+.venv\Scripts\python.exe -m pytest -q
+```
+
+The API tests force the fake analysis provider, so they do not call Gemini or
+consume API quota.
