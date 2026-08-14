@@ -27,7 +27,7 @@ JobFit Analyzer 是一個 AI 履歷與職缺匹配分析工具。
 
 ## 產品完整路線圖
 
-完整產品可以拆成 4 個階段開發。
+完整產品以 4 個主要階段開發，並在階段 1 和階段 2 之間加入階段 1.5。
 
 ### 階段 1：履歷 × 職缺分析
 
@@ -38,6 +38,22 @@ JobFit Analyzer 是一個 AI 履歷與職缺匹配分析工具。
 - AI 分析履歷與職缺的匹配度
 - 產生摘要、強項、缺口、建議補強方向
 - 顯示面試前應優先準備的重點
+
+### 階段 1.5：登入 × 分析紀錄
+
+完成核心分析後，加入使用者登入與個人分析紀錄，讓分析結果不會在重新整理後消失。
+
+- 使用者註冊、登入與登出
+- 每筆分析紀錄只屬於建立它的使用者
+- 成功分析後自動保存職稱、公司、履歷文字、職缺內容與完整分析結果
+- 顯示最新到最舊的分析紀錄，並支援分頁
+- 查看單筆分析紀錄完整內容
+- 將歷史輸入載回分析頁面，讓使用者修改後重新分析
+- 刪除單筆分析紀錄
+- 經過明確確認後清空自己的全部分析紀錄
+- 不保存原始 PDF 或 DOCX binary，只保存解析後文字與來源資訊
+
+階段 1.5 會使用 FastAPI、SQLite、SQLAlchemy 2.0 與 Alembic，逐步建立 authentication、資料所有權與 History CRUD API。
 
 ### 階段 2：面試題產生
 
@@ -64,16 +80,15 @@ JobFit Analyzer 是一個 AI 履歷與職缺匹配分析工具。
 
 ### 階段 4：個人面試準備中心
 
-當產品開始需要保存資料時，再加入個人化與歷史紀錄功能。
+在登入與基本分析紀錄完成後，擴充成更完整的個人面試準備中心。
 
-- 使用者登入
-- 儲存不同公司的分析紀錄
 - 履歷版本管理
 - 面試練習紀錄
 - 常見弱點追蹤
 - 回答範本整理
+- 跨裝置同步與更完整的個人化設定
 
-目前開發重點仍然是階段 1。階段 2 到階段 4 先記錄方向，不放進第一版 MVP。
+目前階段 1 的核心分析流程已完成，接下來的開發重點是階段 1.5。階段 2 到階段 4 先保留為後續方向。
 
 ## MVP 功能範圍
 
@@ -141,6 +156,8 @@ POST /api/analyze
 job_description: string
 resume_file: file optional
 resume_text: string optional
+job_title: string optional
+company_name: string optional
 role_type: string optional
 language: string default zh-TW
 ```
@@ -151,6 +168,7 @@ language: string default zh-TW
 - `resume_file` 和 `resume_text` 至少要有一個。
 - 如果有 `resume_file`，優先解析檔案內容。
 - 如果沒有檔案，就使用 `resume_text`。
+- `job_title` 和 `company_name` 是方便辨識分析紀錄的選填資訊。
 - `language` 預設使用 `zh-TW`，也就是繁體中文。
 
 回傳格式範例：
@@ -159,28 +177,116 @@ language: string default zh-TW
 {
   "match_score": 78,
   "summary": "你的履歷與這份前端職缺有不錯的匹配度...",
-  "strengths": [
-    "有 Vue / React 前端開發經驗",
-    "有 API 串接與狀態管理經驗"
-  ],
+  "strengths": ["有 Vue / React 前端開發經驗", "有 API 串接與狀態管理經驗"],
   "matched_requirements": [
     "符合 JavaScript / TypeScript 經驗需求",
     "符合前後端串接經驗"
   ],
-  "gaps": [
-    "職缺提到 CI/CD，但履歷中沒有明確呈現",
-    "缺少雲端部署經驗描述"
-  ],
-  "recommendations": [
-    "補上專案部署經驗",
-    "把專案成果改成可量化描述"
-  ],
+  "gaps": ["職缺提到 CI/CD，但履歷中沒有明確呈現", "缺少雲端部署經驗描述"],
+  "recommendations": ["補上專案部署經驗", "把專案成果改成可量化描述"],
   "interview_focus": [
     "準備說明你如何設計前端架構",
     "準備回答 API 錯誤處理與 loading 狀態"
-  ]
+  ],
+  "history_id": 42,
+  "history_status": "saved"
 }
 ```
+
+### 階段 1.5 API 樣子（規劃中）
+
+以下 API 是階段 1.5 的目標 contract，實作時仍會透過 tickets 逐步確認細節。
+
+註冊：
+
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "email": "learner@example.com",
+  "password": "example-password"
+}
+```
+
+登入：
+
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "learner@example.com",
+  "password": "example-password"
+}
+```
+
+登入成功後回傳 access token：
+
+```json
+{
+  "access_token": "<token>",
+  "token_type": "bearer"
+}
+```
+
+取得自己的分析紀錄列表：
+
+```http
+GET /api/history?limit=20&offset=0
+Authorization: Bearer <token>
+```
+
+```json
+{
+  "items": [
+    {
+      "id": 42,
+      "display_title": "Frontend Engineer",
+      "company_name": "Example Corp",
+      "match_score": 78,
+      "resume_source": "text",
+      "created_at": "2026-08-14T12:00:00+00:00"
+    }
+  ],
+  "total": 1
+}
+```
+
+取得單筆完整紀錄：
+
+```http
+GET /api/history/42
+Authorization: Bearer <token>
+```
+
+刪除單筆紀錄：
+
+```http
+DELETE /api/history/42
+Authorization: Bearer <token>
+```
+
+成功時回傳：
+
+```http
+204 No Content
+```
+
+清空自己的全部紀錄：
+
+```http
+DELETE /api/history?confirm=true
+Authorization: Bearer <token>
+```
+
+```json
+{
+  "deleted_count": 12
+}
+```
+
+所有 History API 都只能存取目前登入使用者自己的資料；未知或不屬於該使用者的 ID 統一回傳 `404 Not Found`。
 
 ## 前端頁面規劃
 
