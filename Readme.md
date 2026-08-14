@@ -276,7 +276,7 @@ Authorization: Bearer <token>
 清空自己的全部紀錄：
 
 ```http
-DELETE /api/history?confirm=true
+DELETE /api/history
 Authorization: Bearer <token>
 ```
 
